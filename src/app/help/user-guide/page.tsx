@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FooterSection } from "../../../components/FooterSection";
+import { FooterSection } from "../../components/FooterSection";
 
 export default function UserGuidePage() {
     return (
@@ -178,8 +178,8 @@ export default function UserGuidePage() {
                 </section>
 
                 <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-800">
-                    <Link 
-                        href="/parent/settings?section=support" 
+                    <Link
+                        href="/parent/settings?section=support"
                         className="inline-flex items-center gap-2 text-primary hover:underline font-medium"
                     >
                         <span className="material-symbols-outlined">arrow_back</span>
