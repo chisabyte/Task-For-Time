@@ -56,7 +56,7 @@ export async function getFamilyWeeklyMetrics(
     throw new Error(`Failed to fetch assigned tasks: ${tasksError.message}`);
   }
 
-  const tasks = assignedTasks || [];
+  const tasks = (assignedTasks as any[]) || [];
   const tasksAssignedCount = tasks.length;
   const tasksCompletedCount = tasks.filter(t => t.status === 'approved').length;
   const completionRate = tasksAssignedCount > 0 ? tasksCompletedCount / tasksAssignedCount : 0;
@@ -79,7 +79,7 @@ export async function getFamilyWeeklyMetrics(
 
   let approvalLatencyTotal = 0;
   let approvalLatencyCount = 0;
-  const events = taskEvents || [];
+  const events = (taskEvents as any[]) || [];
 
   // Group events by assigned_task_id and calculate latency
   const taskEventMap = new Map<string, { completed?: Date; approved?: Date }>();
@@ -152,7 +152,7 @@ export async function getFamilyWeeklyMetrics(
       .limit(tasks.length);
 
     if (!outcomeTasksError) {
-      const linkedTaskIds = new Set((outcomeTasks || []).map(ot => ot.assigned_task_id).filter(Boolean));
+      const linkedTaskIds = new Set(((outcomeTasks as any[]) || []).map(ot => ot.assigned_task_id).filter(Boolean));
       const unlinkedCount = tasks.filter(t => !linkedTaskIds.has(t.id)).length;
       missingOutcomeRate = tasksAssignedCount > 0 ? unlinkedCount / tasksAssignedCount : 0;
     }
