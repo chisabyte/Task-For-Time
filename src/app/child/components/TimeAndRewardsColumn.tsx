@@ -36,9 +36,9 @@ export function TimeAndRewardsColumn({ timeBankMinutes, rewards, childId, onRede
 
     return (
         <aside className="w-full lg:w-96 flex flex-col gap-6 shrink-0">
-            <div className="bg-gradient-to-br from-teal-900 to-teal-800 dark:from-card-dark dark:to-black rounded-3xl p-6 shadow-xl text-white relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-8 opacity-10">
-                    <span className="material-symbols-outlined text-[120px]">account_balance_wallet</span>
+            <div className="bg-gradient-to-br from-teal-900 to-teal-800 dark:from-card-dark dark:to-black rounded-3xl p-6 pb-8 shadow-xl text-white relative">
+                <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
+                    <span className="material-symbols-outlined text-[100px]">account_balance_wallet</span>
                 </div>
                 <h2 className="text-sm font-bold text-teal-300 uppercase tracking-wider mb-2">My Time Bank</h2>
                 <div className="text-5xl font-black mb-6 tracking-tight flex items-baseline gap-2">
