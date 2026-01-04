@@ -34,6 +34,7 @@ export default function ParentDashboardPage() {
     const [showAddTask, setShowAddTask] = useState(false);
     const [showGrantBonus, setShowGrantBonus] = useState(false);
     const [showCreateQuest, setShowCreateQuest] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const fetchData = useCallback(async () => {
         const { data: { user } } = await supabase.auth.getUser();
@@ -207,7 +208,7 @@ export default function ParentDashboardPage() {
     return (
         <ChildModeGuard>
             <div className="flex h-screen overflow-hidden bg-background-light dark:bg-background-dark text-text-main-light dark:text-text-main-dark font-display antialiased transition-colors duration-200">
-                <ParentSidebar />
+                <ParentSidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
                 <main className="flex-1 flex flex-col h-full overflow-y-auto overflow-x-hidden relative">
                     <TrialBanner />
                     <div className="md:hidden flex items-center justify-between p-4 bg-card-light dark:bg-card-dark border-b border-gray-200 dark:border-gray-800 sticky top-0 z-20">
@@ -217,7 +218,10 @@ export default function ParentDashboardPage() {
                             </div>
                             <span className="font-bold">Task For Time</span>
                         </div>
-                        <button className="p-2 text-text-main-light dark:text-text-main-dark">
+                        <button
+                            onClick={() => setIsMobileMenuOpen(true)}
+                            className="p-2 text-text-main-light dark:text-text-main-dark transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg cursor-pointer"
+                        >
                             <span className="material-symbols-outlined">menu</span>
                         </button>
                     </div>

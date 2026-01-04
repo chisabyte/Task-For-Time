@@ -7,6 +7,7 @@ import { Database } from "@/types/supabase";
 import { ParentSidebar } from "../components/ParentSidebar";
 import { ChildModeGuard } from "@/components/ChildModeGuard";
 import { PremiumGate } from "@/components/PremiumGate";
+import { AppAvatar } from "@/components/AppAvatar";
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 type Child = Database['public']['Tables']['children']['Row'];
@@ -194,6 +195,9 @@ export default function AnalyticsPage() {
     const [customStartDate, setCustomStartDate] = useState<string>('');
     const [customEndDate, setCustomEndDate] = useState<string>('');
     const [selectedChildId, setSelectedChildId] = useState<string>('all');
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [userId, setUserId] = useState<string>("");
+    const [userName, setUserName] = useState("Parent");
 
     // Leaderboard metric
     const [leaderboardMetric, setLeaderboardMetric] = useState<LeaderboardMetric>('minutesEarned');
@@ -217,6 +221,8 @@ export default function AnalyticsPage() {
         }
 
         setProfile(profileData);
+        setUserId(user.id);
+        setUserName(profileData.display_name || "Parent");
 
         // Fetch children
         const { data: childrenData } = await supabase
@@ -581,14 +587,17 @@ export default function AnalyticsPage() {
         <ChildModeGuard>
             <PremiumGate featureName="analytics">
                 <div className="flex h-screen overflow-hidden bg-background-light dark:bg-background-dark text-text-main-light dark:text-text-main-dark font-display antialiased transition-colors duration-200">
-                    <ParentSidebar />
+                    <ParentSidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
                     <main className="flex-1 flex flex-col h-full overflow-y-auto overflow-x-hidden relative">
                         <div className="md:hidden flex items-center justify-between p-4 bg-card-light dark:bg-card-dark border-b border-gray-200 dark:border-gray-800 sticky top-0 z-20">
                             <div className="flex items-center gap-2">
-                                <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-white font-bold">T</div>
+                                <AppAvatar userId={userId || 'parent'} name={userName} size={32} style="notionists" className="rounded-lg" />
                                 <span className="font-bold">Task For Time</span>
                             </div>
-                            <button className="p-2 text-text-main-light dark:text-text-main-dark">
+                            <button
+                                onClick={() => setIsMobileMenuOpen(true)}
+                                className="p-2 text-text-main-light dark:text-text-main-dark transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg cursor-pointer"
+                            >
                                 <span className="material-symbols-outlined">menu</span>
                             </button>
                         </div>
@@ -849,9 +858,12 @@ export default function AnalyticsPage() {
                                                             }`}
                                                     >
                                                         <div className="flex items-center gap-3 flex-shrink-0">
-                                                            <div className="w-12 h-12 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center text-lg font-bold text-teal-600 dark:text-teal-400">
-                                                                {stat.child.name.charAt(0).toUpperCase()}
-                                                            </div>
+                                                            <AppAvatar
+                                                                userId={stat.child.id}
+                                                                name={stat.child.name}
+                                                                size={48}
+                                                                style="adventurer"
+                                                            />
                                                             <div>
                                                                 <h3 className="font-bold text-text-main-light dark:text-text-main-dark">{stat.child.name}</h3>
                                                                 <span className="text-xs text-primary">Level {stat.child.level}</span>
@@ -963,9 +975,12 @@ export default function AnalyticsPage() {
                                                                 {index + 1}
                                                             </div>
                                                             <div className="flex-1 flex items-center gap-3">
-                                                                <div className="w-10 h-10 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center text-sm font-bold text-teal-600 dark:text-teal-400">
-                                                                    {stat.child.name.charAt(0).toUpperCase()}
-                                                                </div>
+                                                                <AppAvatar
+                                                                    userId={stat.child.id}
+                                                                    name={stat.child.name}
+                                                                    size={40}
+                                                                    style="adventurer"
+                                                                />
                                                                 <span className="font-bold text-text-main-light dark:text-text-main-dark">{stat.child.name}</span>
                                                             </div>
                                                             <div className="text-right">

@@ -8,7 +8,12 @@ import { exitChildMode, clearAllSessionData, isInChildMode, getActiveChildId } f
 import { ChildAvatar } from "@/components/ChildAvatar";
 import { AppAvatar } from "@/components/AppAvatar";
 
-export function ChildSidebar() {
+interface ChildSidebarProps {
+    isOpen?: boolean;
+    onClose?: () => void;
+}
+
+export function ChildSidebar({ isOpen, onClose }: ChildSidebarProps) {
     const pathname = usePathname();
     const router = useRouter();
     const [childName, setChildName] = useState("Child");
@@ -142,20 +147,26 @@ export function ChildSidebar() {
         showSignOut: !(userRole === 'parent' && isParentViewing)
     });
 
-    return (
-        <aside className="hidden md:flex w-64 flex-col border-r border-teal-100 dark:border-gray-800 bg-card-light dark:bg-card-dark h-screen sticky top-0">
-            <div className="flex items-center gap-3 px-6 py-6 border-b border-teal-50 dark:border-gray-800">
-                <Link href="/child/dashboard" className="flex items-center gap-2">
+    const sidebarContent = (
+        <div className="flex flex-col h-full">
+            <div className="flex items-center justify-between px-6 py-6 border-b border-teal-50 dark:border-gray-800">
+                <Link href="/child/dashboard" className="flex items-center gap-2" onClick={onClose}>
                     <span className="material-symbols-outlined text-3xl text-primary">diversity_3</span>
-                    <span className="text-lg font-bold tracking-tight text-text-main dark:text-white">Task For Time</span>
+                    <span className="text-lg font-bold tracking-tight text-text-main-light dark:text-white uppercase tracking-tighter">Task For Time</span>
                 </Link>
+                {onClose && (
+                    <button onClick={onClose} className="md:hidden p-2 text-text-sub-light dark:text-text-sub-dark">
+                        <span className="material-symbols-outlined">close</span>
+                    </button>
+                )}
             </div>
             <nav className="flex-1 flex flex-col gap-3 px-4 py-6">
                 <Link
                     href="/child/dashboard"
+                    onClick={onClose}
                     className={`flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all font-bold ${isActive('/child/dashboard')
-                            ? 'bg-primary/20 text-teal-900 dark:text-primary shadow-sm'
-                            : 'text-text-sub-light dark:text-text-sub-dark hover:bg-teal-50 dark:hover:bg-gray-800'
+                        ? 'bg-primary/20 text-teal-900 dark:text-primary shadow-sm'
+                        : 'text-text-sub-light dark:text-text-sub-dark hover:bg-teal-50 dark:hover:bg-gray-800'
                         }`}
                 >
                     <span className="material-symbols-outlined fill-1">space_dashboard</span>
@@ -163,6 +174,7 @@ export function ChildSidebar() {
                 </Link>
                 <Link
                     href="/child/dashboard"
+                    onClick={onClose}
                     className={`flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all font-medium text-text-sub-light dark:text-text-sub-dark hover:bg-teal-50 dark:hover:bg-gray-800 group`}
                 >
                     <span className="material-symbols-outlined group-hover:text-primary transition-colors">check_circle</span>
@@ -186,18 +198,15 @@ export function ChildSidebar() {
                         <span className="text-xs text-text-sub-light dark:text-text-sub-dark">Level {childLevel}</span>
                     </div>
                 </div>
-                {/* CRITICAL: Only show "Viewing as" banner if user is confirmed parent AND isParentViewing is true */}
                 {userRole === 'parent' && isParentViewing && (
                     <div className="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-3 py-2 rounded-lg text-center font-medium mb-2">
                         Viewing as {childName}
                     </div>
                 )}
-                {/* CRITICAL: Double-check both userRole AND isParentViewing to show Exit Child Mode
-                    This ensures real child users (role='child') ALWAYS see Sign Out, never Exit Child Mode */}
                 {userRole === 'parent' && isParentViewing ? (
                     <button
                         onClick={handleExitChildMode}
-                        className="w-full flex items-center justify-center gap-2 px-3 py-2.5 text-sm text-white bg-amber-500 hover:bg-amber-600 rounded-lg transition-colors font-medium"
+                        className="w-full flex items-center justify-center gap-2 px-3 py-2.5 text-sm text-white bg-amber-500 hover:bg-amber-600 rounded-lg transition-colors font-medium cursor-pointer"
                     >
                         <span className="material-symbols-outlined text-[18px]">lock</span>
                         Exit Child Mode
@@ -205,13 +214,42 @@ export function ChildSidebar() {
                 ) : (
                     <button
                         onClick={handleLogout}
-                        className="w-full flex items-center justify-center gap-2 px-3 py-2.5 text-sm text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors font-medium"
+                        className="w-full flex items-center justify-center gap-2 px-3 py-2.5 text-sm text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors font-medium cursor-pointer"
                     >
                         <span className="material-symbols-outlined text-[18px]">logout</span>
                         Sign Out
                     </button>
                 )}
             </div>
-        </aside>
+        </div>
+    );
+
+    return (
+        <>
+            {/* Desktop Sidebar */}
+            <aside className="hidden md:flex w-64 flex-col border-r border-teal-100 dark:border-gray-800 bg-card-light dark:bg-card-dark h-screen sticky top-0">
+                {sidebarContent}
+            </aside>
+
+            {/* Mobile Drawer */}
+            <div
+                className={`fixed inset-0 z-50 md:hidden transition-opacity duration-300 ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+                    }`}
+            >
+                {/* Backdrop */}
+                <div
+                    className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                    onClick={onClose}
+                />
+
+                {/* Sidebar */}
+                <aside
+                    className={`absolute top-0 left-0 w-80 h-full bg-card-light dark:bg-card-dark shadow-2xl transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'
+                        }`}
+                >
+                    {sidebarContent}
+                </aside>
+            </div>
+        </>
     );
 }

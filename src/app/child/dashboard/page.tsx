@@ -34,6 +34,7 @@ export default function ChildDashboardPage() {
     const [taskCounts, setTaskCounts] = useState<TaskCounts>({ active: 0, readyForReview: 0, completed: 0 });
     const [showCreateGoal, setShowCreateGoal] = useState(false);
     const [completingTaskId, setCompletingTaskId] = useState<string | null>(null);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const fetchData = useCallback(async () => {
         const { data: { user } } = await supabase.auth.getUser();
@@ -295,14 +296,17 @@ export default function ChildDashboardPage() {
 
     return (
         <div className="flex h-screen overflow-hidden bg-background-light dark:bg-background-dark text-text-main-light dark:text-text-main-dark font-display antialiased transition-colors duration-200">
-            <ChildSidebar />
+            <ChildSidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
             <main className="flex-1 flex flex-col h-full overflow-y-auto overflow-x-hidden relative">
                 <div className="md:hidden flex items-center justify-between p-4 bg-card-light dark:bg-card-dark border-b border-gray-200 dark:border-gray-800 sticky top-0 z-20">
                     <div className="flex items-center gap-2">
                         <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-white font-bold">T</div>
                         <span className="font-bold">Task For Time</span>
                     </div>
-                    <button className="p-2 text-text-main-light dark:text-text-main-dark">
+                    <button
+                        onClick={() => setIsMobileMenuOpen(true)}
+                        className="p-2 text-text-main-light dark:text-text-main-dark transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg cursor-pointer"
+                    >
                         <span className="material-symbols-outlined">menu</span>
                     </button>
                 </div>

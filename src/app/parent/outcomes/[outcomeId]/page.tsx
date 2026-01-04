@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 import { ParentSidebar } from "../../components/ParentSidebar";
 import { ChildModeGuard } from "@/components/ChildModeGuard";
 import Link from "next/link";
+import { AppAvatar } from "@/components/AppAvatar";
 
 interface Outcome {
   id: string;
@@ -42,6 +43,9 @@ export default function OutcomeDetailPage() {
   const [availableTasks, setAvailableTasks] = useState<AssignedTask[]>([]);
   const [availableTemplates, setAvailableTemplates] = useState<TaskTemplate[]>([]);
   const [showMapModal, setShowMapModal] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [userId, setUserId] = useState<string>("");
+  const [userName, setUserName] = useState("Parent");
 
   const fetchData = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -52,7 +56,7 @@ export default function OutcomeDetailPage() {
 
     const { data: profile } = await supabase
       .from('profiles')
-      .select('family_id, role')
+      .select('family_id, role, display_name')
       .eq('id', user.id)
       .single();
 
@@ -60,6 +64,9 @@ export default function OutcomeDetailPage() {
       router.push("/login");
       return;
     }
+
+    setUserId(user.id);
+    setUserName(profile.display_name || "Parent");
 
     // Fetch outcome
     const { data: outcomeData } = await supabase
@@ -190,8 +197,20 @@ export default function OutcomeDetailPage() {
   return (
     <ChildModeGuard>
       <div className="flex h-screen overflow-hidden bg-background-light dark:bg-background-dark text-text-main-light dark:text-text-main-dark font-display antialiased transition-colors duration-200">
-        <ParentSidebar />
+        <ParentSidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
         <main className="flex-1 flex flex-col h-full overflow-y-auto overflow-x-hidden relative">
+          <div className="md:hidden flex items-center justify-between p-4 bg-card-light dark:bg-card-dark border-b border-gray-200 dark:border-gray-800 sticky top-0 z-20">
+            <div className="flex items-center gap-2">
+              <AppAvatar userId={userId || 'parent'} name={userName} size={32} style="notionists" className="rounded-lg" />
+              <span className="font-bold">Task For Time</span>
+            </div>
+            <button
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="p-2 text-text-main-light dark:text-text-main-dark transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg cursor-pointer"
+            >
+              <span className="material-symbols-outlined">menu</span>
+            </button>
+          </div>
           <div className="max-w-[1200px] w-full mx-auto p-4 md:p-8 flex flex-col gap-8">
             <header className="flex flex-col gap-4">
               <Link
@@ -312,8 +331,8 @@ function MapTasksModal({
           <button
             onClick={() => setActiveTab('tasks')}
             className={`flex-1 px-4 py-3 font-medium transition-colors ${activeTab === 'tasks'
-                ? 'bg-primary/10 text-primary border-b-2 border-primary'
-                : 'text-text-sub-light dark:text-text-sub-dark hover:bg-gray-50 dark:hover:bg-gray-800'
+              ? 'bg-primary/10 text-primary border-b-2 border-primary'
+              : 'text-text-sub-light dark:text-text-sub-dark hover:bg-gray-50 dark:hover:bg-gray-800'
               }`}
           >
             Assigned Tasks ({availableTasks.length})
@@ -321,8 +340,8 @@ function MapTasksModal({
           <button
             onClick={() => setActiveTab('templates')}
             className={`flex-1 px-4 py-3 font-medium transition-colors ${activeTab === 'templates'
-                ? 'bg-primary/10 text-primary border-b-2 border-primary'
-                : 'text-text-sub-light dark:text-text-sub-dark hover:bg-gray-50 dark:hover:bg-gray-800'
+              ? 'bg-primary/10 text-primary border-b-2 border-primary'
+              : 'text-text-sub-light dark:text-text-sub-dark hover:bg-gray-50 dark:hover:bg-gray-800'
               }`}
           >
             Templates ({availableTemplates.length})

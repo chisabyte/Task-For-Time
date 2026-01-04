@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 import { ParentSidebar } from "../components/ParentSidebar";
 import { ChildModeGuard } from "@/components/ChildModeGuard";
 import Link from "next/link";
+import { AppAvatar } from "@/components/AppAvatar";
 
 interface Outcome {
   id: string;
@@ -25,6 +26,9 @@ export default function OutcomesPage() {
   const [familyId, setFamilyId] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingOutcome, setEditingOutcome] = useState<Outcome | null>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [userId, setUserId] = useState<string>("");
+  const [userName, setUserName] = useState("Parent");
 
   const fetchOutcomes = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -43,6 +47,9 @@ export default function OutcomesPage() {
       router.push("/login");
       return;
     }
+
+    setUserId(user.id);
+    setUserName(profile.display_name || "Parent");
 
     setFamilyId(profile.family_id);
 
@@ -110,13 +117,19 @@ export default function OutcomesPage() {
   return (
     <ChildModeGuard>
       <div className="flex h-screen overflow-hidden bg-background-light dark:bg-background-dark text-text-main-light dark:text-text-main-dark font-display antialiased transition-colors duration-200">
-        <ParentSidebar />
+        <ParentSidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
         <main className="flex-1 flex flex-col h-full overflow-y-auto overflow-x-hidden relative">
           <div className="md:hidden flex items-center justify-between p-4 bg-card-light dark:bg-card-dark border-b border-gray-200 dark:border-gray-800 sticky top-0 z-20">
             <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg bg-indigo-500 flex items-center justify-center text-white font-bold">P</div>
+              <AppAvatar userId={userId || 'parent'} name={userName} size={32} style="notionists" className="rounded-lg" />
               <span className="font-bold">Task For Time</span>
             </div>
+            <button
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="p-2 text-text-main-light dark:text-text-main-dark transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg cursor-pointer"
+            >
+              <span className="material-symbols-outlined">menu</span>
+            </button>
           </div>
 
           <div className="max-w-[1200px] w-full mx-auto p-4 md:p-8 flex flex-col gap-8">
@@ -164,11 +177,10 @@ export default function OutcomesPage() {
                 {outcomes.map((outcome) => (
                   <div
                     key={outcome.id}
-                    className={`bg-card-light dark:bg-card-dark rounded-xl border-2 p-6 flex flex-col gap-4 ${
-                      outcome.active
+                    className={`bg-card-light dark:bg-card-dark rounded-xl border-2 p-6 flex flex-col gap-4 ${outcome.active
                         ? 'border-primary/30 dark:border-primary/50'
                         : 'border-gray-200 dark:border-gray-700 opacity-60'
-                    }`}
+                      }`}
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
@@ -186,11 +198,10 @@ export default function OutcomesPage() {
                       </div>
                       <button
                         onClick={() => handleToggleActive(outcome)}
-                        className={`p-2 rounded-lg transition-colors ${
-                          outcome.active
+                        className={`p-2 rounded-lg transition-colors ${outcome.active
                             ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
                             : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400'
-                        }`}
+                          }`}
                         title={outcome.active ? 'Active' : 'Inactive'}
                       >
                         <span className="material-symbols-outlined text-sm">

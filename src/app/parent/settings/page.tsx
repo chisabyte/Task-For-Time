@@ -29,6 +29,7 @@ function SettingsContent() {
     const [activeSection, setActiveSection] = useState('account');
     const [displayName, setDisplayName] = useState("Parent");
     const [userId, setUserId] = useState<string>("");
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     // Read initial section from URL query parameter
     useEffect(() => {
@@ -86,14 +87,17 @@ function SettingsContent() {
     return (
         <ChildModeGuard>
             <div className="flex h-screen overflow-hidden bg-background-light dark:bg-background-dark text-text-main-light dark:text-text-main-dark font-display antialiased transition-colors duration-200">
-                <ParentSidebar />
+                <ParentSidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
                 <main className="flex-1 flex flex-col h-full overflow-hidden relative bg-gray-50/50 dark:bg-background-dark">
                     <div className="md:hidden flex items-center justify-between p-4 bg-card-light dark:bg-card-dark border-b border-gray-200 dark:border-gray-800 sticky top-0 z-20">
                         <div className="flex items-center gap-2">
                             <AppAvatar userId={userId || 'parent'} name={displayName} size={32} style="notionists" className="rounded-lg" />
                             <span className="font-bold">Task For Time</span>
                         </div>
-                        <button className="p-2 text-text-main-light dark:text-text-main-dark">
+                        <button
+                            onClick={() => setIsMobileMenuOpen(true)}
+                            className="p-2 text-text-main-light dark:text-text-main-dark transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg cursor-pointer"
+                        >
                             <span className="material-symbols-outlined">menu</span>
                         </button>
                     </div>
