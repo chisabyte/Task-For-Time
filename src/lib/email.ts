@@ -5,7 +5,16 @@
 
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Defer instantiation to runtime
+let resend: Resend | null = null;
+
+function getResend() {
+  if (!resend && process.env.RESEND_API_KEY) {
+    resend = new Resend(process.env.RESEND_API_KEY);
+  }
+  return resend;
+}
+
 
 export interface EmailOptions {
   to: string;
@@ -21,13 +30,15 @@ export interface EmailOptions {
  * @returns Promise with result or error
  */
 export async function sendEmail(options: EmailOptions): Promise<{ success: boolean; error?: string }> {
-  if (!process.env.RESEND_API_KEY) {
-    console.error('[Email] RESEND_API_KEY not configured');
+  const client = getResend();
+
+  if (!client) {
+    console.error('[Email] RESEND_API_KEY not configured or client failed to instantiate');
     return { success: false, error: 'Email service not configured' };
   }
 
   try {
-    const result = await resend.emails.send({
+    const result = await client.emails.send({
       from: options.from || 'Task For Time <noreply@taskfortime.com>',
       to: options.to,
       subject: options.subject,
